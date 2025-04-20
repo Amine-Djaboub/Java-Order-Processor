@@ -3,7 +3,7 @@ package org.example;
 import org.junit.jupiter.api.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -16,22 +16,29 @@ public class OrderProcessorTest {
         System.setOut(new PrintStream(outputStream));
 
         // Set up test data
-        Customer customer = new Customer("Alice", true);
-        Item item1 = new Item("Book", 10.0, 2);
-        Item item2 = new Item("Pen", 2.0, 5);
-        Order order = new Order(customer, Arrays.asList(item1, item2));
+        Item book = new Item("Book", 10.0, 2); // $20.00
+        Item pen = new Item("Pen", 2.5, 4);    // $10.00
+        List<Item> items = List.of(book, pen);
+        Customer customer = new Customer("Alice", false);
 
         // Call method under test
+        Order order = new Order(customer, items);
+
+        // capture output
+        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outContent));
+
+        // Process order
         OrderProcessor processor = new OrderProcessor();
         processor.printOrderSummary(order);
 
-        // Convert captured output to String
-        String output = outputStream.toString();
+        // Get the printed string
+        String output = outContent.toString();
 
         // Simple assertions
-        assertTrue(output.contains("Alice"));
-        assertTrue(output.contains("Book: 2 x $10.0 = $20.0"));
-        assertTrue(output.contains("Pen: 5 x $2.0 = $10.0"));
-        assertTrue(output.contains("Total Price: $27.00")); // (20+10)*0.9 = 27.00
+        assertTrue(output.contains("Customer: Alice"));
+        assertTrue(output.contains("Book: 2 x $10.00 = $20.00"));
+        assertTrue(output.contains("Pen: 4 x $2.50 = $10.00"));
+        assertTrue(output.contains("Total Price: $30.00"));
     }
 }
